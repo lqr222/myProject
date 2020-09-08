@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 1888px;
+            background-color: #ccc;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        .focus {
+            position: relative;
+            overflow: hidden;
+            width: 1200px;
+            height: 375px;
+            margin: 100px auto;
+        }
+
+        .focus-fa {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 410%;
+        }
+
+        .focus-fa li {
+            float: left;
+        }
+
+        .focus-l,
+        .focus-r {
+            display: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            text-align: center;
+            line-height: 38px;
+            background-color: rgba(0, 0, 0, .5);
+            color: #fff;
+            width: 24px;
+            height: 38px;
+            z-index: 2;
+        }
+
+        .focus-l {
+            left: 0;
+        }
+
+        .focus-r {
+            right: 0;
+        }
+
+        .focus-nav {
+            background-color: rgba(0, 0, 0, .3);
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            border-radius: 8px;
+        }
+
+        .focus-nav li {
+            float: left;
+            margin: 3px 6px;
+            width: 12px;
+            height: 12px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .focus-nav .adorn {
+            background-color: rgb(250, 234, 7);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="focus">
+        <a href="javascipt:void(0);" class="focus-l">&lt;</a>
+        <a href="javascipt:void(0);" class="focus-r">&gt;</a>
+        <ul class='focus-fa'>
+            <li><a href="#">
+                    <img src="images/ic1.jpg">
+                </a></li>
+            <li><a href="#">
+                    <img src="images/ic2.jpg">
+                </a></li>
+            <li><a href="#">
+                    <img src="images/ic3.jpg">
+                </a></li>
+        </ul>
+
+        <ol class="focus-nav">
+
+        </ol>
+    </div>
+
+    <script>
+        var focus = document.querySelector('.focus');
+        var ri = document.querySelector('.focus-r');
+        var le = document.querySelector('.focus-l');
+        var ul = document.querySelector('.focus-fa');
+        var ol = document.querySelector('.focus-nav');
+        var moveWidth = focus.offsetWidth;
+
+        // 左右箭头隐藏,自动播放控制
+        focus.addEventListener('mouseover', function () {
+            le.style.display = 'block';
+            ri.style.display = 'block';
+            clearInterval(timer);
+            timer = null;
+        })
+
+        focus.addEventListener('mouseout', function () {
+            le.style.display = 'none';
+            ri.style.display = 'none';
+            timer = setInterval(function () {
+                ri.click();
+            }, 4000)
+
+        })
+
+
+        //循环添加li，并添加索引index
+        for (var i = 0; i < ul.children.length; i++) {
+            var lis = document.createElement('li');
+            lis.setAttribute('index', i);
+            ol.appendChild(lis);
+
+            //li点击事件，排他思想
+            lis.addEventListener('click', function () {
+                for (var i = 0; i < ol.children.length; i++) {
+                    ol.children[i].className = '';
+                }
+                this.className = 'adorn';
+
+                //小圆点点击移动
+                var index = this.getAttribute('index');
+                num = index;
+                circle = index;
+                animate(ul, -index * moveWidth);
+            })
+        }
+        ol.children[0].className = 'adorn';
+
+
+        //右箭头实现无缝滚动 num控制右箭头 circle控制左箭头 flag节流阀
+        var pic = ul.children[0].cloneNode(true);
+        ul.appendChild(pic);
+        var num = 0;
+        var circle = 0;
+        var flag = true;
+        ri.addEventListener('click', function () {
+            if (flag) {
+                flag = false;
+                if (num == ul.children.length - 1) {
+                    ul.style.left = 0;
+                    num = 0;
+                }
+                num++;
+                animate(ul, -num * moveWidth, function () {
+                    flag = true;
+                });
+
+                //小圆圈变化
+                circle++;
+                if (circle == ol.children.length) {
+                    circle = 0;
+                }
+                circleChange();
+            }
+        })
+
+
+        //左箭头实现，原理等同右箭头改部分值
+        le.addEventListener('click', function () {
+            if (flag) {
+                flag = false;
+                if (num == 0) {
+                    num = ul.children.length - 1;
+                    ul.style.left = -(ul.children.length - 1) * moveWidth + 'px';
+
+                }
+                num--;
+                animate(ul, -num * moveWidth, function () {
+                    flag = true;
+                });
+
+                //小圆圈变化
+                circle--;
+                if (circle < 0) {
+                    circle = ol.children.length - 1;
+                }
+                circleChange();
+            }
+        })
+
+
+        //定义自动播放函数
+        var timer = setInterval(function () {
+            ri.click();
+        }, 4000)
+
+
+        //小圆圈排他思想函数
+        function circleChange() {
+            for (let i = 0; i < ol.children.length; i++) {
+                ol.children[i].className = '';
+            }
+            ol.children[circle].className = 'adorn';
+        }
+
+
+        //定义动画函数
+        function animate(obj, target, callback) {
+            clearInterval(obj.timer);
+            obj.timer = setInterval(function () {
+                var step = (target - obj.offsetLeft) / 10;
+                step = step > 0 ? Math.ceil(step) : Math.floor(step);
+                if (obj.offsetLeft == target) {
+                    clearInterval(obj.timer);
+                    callback && callback();
+                }
+                obj.style.left = obj.offsetLeft + step + 'px';
+            }, 15);
+        }
+    </script>
+
+</body>
+
+</html>
