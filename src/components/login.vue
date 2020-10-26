@@ -19,6 +19,7 @@
             placeholder="账号"
             v-model="loginForm.username"
             prefix-icon="el-icon-search"
+            ref="mark"
           ></el-input>
         </el-form-item>
 
@@ -28,6 +29,7 @@
             v-model="loginForm.password"
             prefix-icon="el-icon-search"
             type="password"
+            @keyup.enter.native="login"
           ></el-input>
         </el-form-item>
 
@@ -42,6 +44,9 @@
 
 <script>
 export default {
+  mounted() {
+    this.$refs.mark.focus();
+  },
   data() {
     return {
       //数据绑定
@@ -130,6 +135,17 @@ export default {
     height: 100%;
     border-radius: 50%;
     background-color: #eee;
+    animation: move 15s linear infinite;
+  }
+
+  @keyframes move {
+    0% {
+      transform: rotate(0);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }
 

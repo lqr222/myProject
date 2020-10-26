@@ -1,0 +1,3 @@
+1.先运行 npm install 安装依赖包
+2.安装phpstudy2016，并导入vue-api-server的db里的mydb.sql文件
+3.node 运行vue-api-server里的app.js文件
